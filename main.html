@@ -1,0 +1,128 @@
+<!-- FILEPATH: index.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <title>PWA Time Recorder</title>
+    <link rel="manifest" href="/manifest.json">
+</head>
+<body>
+    <h1>PWA Time Recorder</h1>
+    <button id="recordButton">Record Time</button>
+    <button id="resetButton">Reset Table</button>
+    <table id="timeTable">
+        <thead>
+            <tr>
+                <th>Time</th>
+            </tr>
+        </thead>
+        <tbody>
+        </tbody>
+    </table>
+
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/service-worker.js')
+                    .then(registration => {
+                        console.log('Service Worker registered:', registration);
+                    })
+                    .catch(error => {
+                        console.log('Service Worker registration failed:', error);
+                    });
+            });
+        }
+
+        const recordButton = document.getElementById('recordButton');
+        const resetButton = document.getElementById('resetButton');
+        const timeTable = document.getElementById('timeTable');
+
+        recordButton.addEventListener('click', () => {
+            const currentTime = new Date().toLocaleTimeString();
+            const newRow = document.createElement('tr');
+            const newCell = document.createElement('td');
+            newCell.textContent = currentTime;
+            newRow.appendChild(newCell);
+            timeTable.appendChild(newRow);
+
+            // Save time to cookies
+            const savedTimes = getCookie('savedTimes');
+            const updatedTimes = savedTimes ? savedTimes + ',' + currentTime : currentTime;
+            document.cookie = `savedTimes=${updatedTimes}`;
+        });
+
+        resetButton.addEventListener('click', () => {
+            timeTable.innerHTML = '';
+
+            // Clear saved time from cookies
+
+            document.cookie = `savedTimes=;`
+            //document.cookie = 'savedTimes=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+        });
+
+        // Load saved time from cookies on refresh
+        window.addEventListener('load', () => {
+            const savedTimes = getCookie('savedTimes');
+            if (savedTimes) {
+                const times = savedTimes.split(',');
+                for (let i = 0; i < times.length; i++) {
+                    const newRow = document.createElement('tr');
+                    const newCell = document.createElement('td');
+                    newCell.textContent = times[i];
+                    newRow.appendChild(newCell);
+                    timeTable.appendChild(newRow);
+                }
+            }
+        });
+
+        // Helper function to get cookie value by name
+        function getCookie(name) {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.startsWith(name + '=')) {
+                    return cookie.substring(name.length + 1);
+                }
+            }
+            return null;
+        }
+    </script>
+</body>
+</html>
+<!-- 
+            // Save time to cookies
+            document.cookie = `savedTime=${currentTime}`;
+        });
+
+        resetButton.addEventListener('click', () => {
+            timeTable.innerHTML = '';
+
+            // Clear saved time from cookies
+            document.cookie = 'savedTime=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;';
+        });
+
+        // Load saved time from cookies on refresh
+        window.addEventListener('load', () => {
+            const savedTime = getCookie('savedTime');
+            if (savedTime) {
+                const newRow = document.createElement('tr');
+                const newCell = document.createElement('td');
+                newCell.textContent = savedTime;
+                newRow.appendChild(newCell);
+                timeTable.appendChild(newRow);
+            }
+        });
+
+        // Helper function to get cookie value by name
+        function getCookie(name) {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.startsWith(name + '=')) {
+                    return cookie.substring(name.length + 1);
+                }
+            }
+            return null;
+        } -->
+    </script>
+</body>
+</html>
